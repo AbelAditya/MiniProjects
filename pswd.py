@@ -1,26 +1,19 @@
-import subprocess as sp
-res = sp.run("netsh wlan show profiles",capture_output="True",shell="flase")
-l1 = str(res).split("\\n")
-l1.pop()
-l1.pop()
-l = l1[9:]
-for i in range(len(l)):
-    l[i] = l[i][27:len(l[i])-2]
+import subprocess
+import os
 
-d = {}
+p1 = subprocess.run('netsh wlan show profiles', shell=True, capture_output=True, text=True)
+a1 = p1.stdout
 
-for i in l:
-    a = str(sp.run(f'netsh wlan show profile {i} key = clear',capture_output="True")).split("\\n")
-    for j in a:
-        if "Key Content" in j:
-            d[i] = j[29:len(j)-2]
-            break
-    else:
-        d[i] = "Not Found"
+x1 = a1.find('All')
+l = a1[x1:].split('All User Profile     : ')
+path = os.getcwd()
+f = open(f'{path}\\pwd.txt', 'w')
+for i in range(1,len(l)):
+    p = subprocess.run(f'netsh wlan show profile name="{l[i].strip()}" key=clear', shell=True, capture_output=True, text=True)
+    a = p.stdout
+    z = a.find('Key Content')
+    z1 = a.find('Cost')
+    f.write(f'{l[i].strip()} : {a[z+24:z1]}')
 
-f = open(r"passwords.txt","w")
-
-for i in range(len(l)):
-    f.write(f'{l[i]} : {d[l[i]]}\n')
-
+f.flush()
 f.close()
